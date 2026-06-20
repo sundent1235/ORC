@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+
+# PyCharm
+.idea/
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec.bak
+
+# OS files
+Thumbs.db
+Desktop.ini
