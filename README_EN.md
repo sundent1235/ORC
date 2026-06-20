@@ -8,7 +8,7 @@ A lightweight Windows desktop screenshot tool with built-in OCR text recognition
 
 - **Hotkey Capture** — Global hotkey `Ctrl+Shift+A`, supports full-screen and region selection, multi-monitor support
 - **Local OCR** — Powered by RapidOCR (PaddleOCR v4), recognizes Chinese and English text offline
-- **Auto Translation** — Automatically translates via Google Translate after OCR, supports Chinese/English/Japanese/Korean/French/German/Spanish/Russian and more
+- **Auto Translation** — Automatically translates via MyMemory API after OCR, supports Chinese/English/Japanese/Korean/French/German/Spanish/Russian and more
 - **Screenshot Encryption** — Screenshots saved in XOR-encrypted format, key bound to local machine
 - **Clipboard Integration** — Screenshots auto-copied to clipboard, OCR text and translations one-click copy
 - **System Tray** — Runs minimized in the system tray, no taskbar clutter
@@ -71,7 +71,7 @@ ORC/
 │   ├── hotkey.py         # Native Windows hotkey (RegisterHotKey API)
 │   ├── ocr_engine.py     # RapidOCR (PaddleOCR v4) OCR engine
 │   ├── screenshot.py     # Screenshot management + XOR encryption
-│   └── translator.py     # Google Translate module
+│   └── translator.py     # MyMemory API translation module
 ├── ui/                   # UI modules
 │   ├── main_window.py    # Screenshot region selection window
 │   ├── ocr_dialog.py     # OCR result dialog (preview + recognition + translation)
@@ -106,14 +106,13 @@ Config file located at `~/.orc_screenshot/config.json`, created automatically on
 | PyQt5 | GUI framework |
 | mss | Screen capture |
 | RapidOCR (PaddleOCR v4) | Local OCR recognition |
-| deep-translator | Google Translate API |
+| MyMemory API | Multi-language translation |
 | Pillow | Image processing |
-| truststore | Windows system SSL certificates |
 | PyInstaller | Package as EXE |
 
 ## Known Issues
 
-- Translation requires internet access; OCR text is sent to Google servers via HTTP. Be mindful of privacy if screenshots contain sensitive information.
+- Translation requires internet access; OCR text is sent to MyMemory servers via HTTP. Be mindful of privacy if screenshots contain sensitive information.
 - The EXE is not code-signed; Windows SmartScreen will show an "Unknown Publisher" warning.
 - Encrypted screenshots use a machine-bound key and can only be decrypted on the same machine. Disable encryption or manually decrypt before transferring to another computer.
 

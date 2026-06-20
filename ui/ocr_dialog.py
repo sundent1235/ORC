@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QPushButton, QComboBox, QScrollArea, QWidget, QSizePolicy,
     QFrame, QApplication
 )
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QFont, QPixmap, QImage, QIcon
 
 from PIL import Image
@@ -24,6 +24,20 @@ if getattr(sys, 'frozen', False):
 else:
     _ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'assets')
 _ICON_PATH = os.path.join(_ASSETS_DIR, 'icon.png')
+
+
+class TranslateWorker(QThread):
+    """后台翻译线程，避免阻塞 UI"""
+    finished = pyqtSignal(str)
+
+    def __init__(self, translator, text):
+        super().__init__()
+        self.translator = translator
+        self.text = text
+
+    def run(self):
+        result = self.translator.translate(self.text)
+        self.finished.emit(result)
 
 
 # 淡蓝色主题样式常量
@@ -162,6 +176,7 @@ class OCRDialog(QDialog):
         super().__init__(parent)
         self.translator = Translator()
         self._pil_img = None
+        self._worker = None
         self._init_ui()
         # 设置窗口图标
         if os.path.exists(_ICON_PATH):
@@ -309,7 +324,7 @@ class OCRDialog(QDialog):
             QTimer.singleShot(100, self._on_translate)
 
     def _on_translate(self):
-        """点击翻译"""
+        """点击翻译（异步，不阻塞 UI）"""
         text = self.ocr_text.toPlainText().strip()
         if not text:
             return
@@ -317,11 +332,18 @@ class OCRDialog(QDialog):
         self.translator.set_target_lang(target)
         self.btn_translate.setText("翻译中...")
         self.btn_translate.setEnabled(False)
-        QApplication.processEvents()
 
-        result = self.translator.translate(text)
+        # 终止上一次未完成的翻译
+        if self._worker and self._worker.isRunning():
+            self._worker.quit()
+
+        self._worker = TranslateWorker(self.translator, text)
+        self._worker.finished.connect(self._on_translate_done)
+        self._worker.start()
+
+    def _on_translate_done(self, result: str):
+        """翻译完成回调"""
         self.trans_text.setPlainText(result)
-
         self.btn_translate.setText("翻译")
         self.btn_translate.setEnabled(True)
 

@@ -1,24 +1,20 @@
 """
 翻译模块
-使用 deep-translator 支持 Google 翻译（免费）
+使用 MyMemory Translation API（免费，无需 API Key，国内可用）
+文档：https://mymemory.translated.net/doc/spec.php
 """
-import ssl as _ssl
-
-import truststore as _truststore  # 使用 Windows 系统证书库，修复 SSL 验证
-if not isinstance(_ssl.create_default_context(), _truststore.SSLContext):
-    _truststore.inject_into_ssl()
-
-from deep_translator import GoogleTranslator
+import urllib.request
+import urllib.parse
+import json
 
 
 class Translator:
-    """翻译器"""
+    """翻译器 — MyMemory API"""
 
     # 支持的语言列表
     LANGUAGES = {
         "auto": "自动检测",
         "zh-CN": "中文简体",
-        "zh-TW": "中文繁体",
         "en": "英语",
         "ja": "日语",
         "ko": "韩语",
@@ -28,30 +24,30 @@ class Translator:
         "ru": "俄语",
     }
 
+    # MyMemory 语言代码映射
+    _LANG_MAP = {
+        "auto": "auto",
+        "zh-CN": "zh-CN",
+        "en": "en",
+        "ja": "ja",
+        "ko": "ko",
+        "fr": "fr",
+        "de": "de",
+        "es": "es",
+        "ru": "ru",
+    }
+
     def __init__(self, source_lang: str = "auto", target_lang: str = "zh-CN"):
         self.source_lang = source_lang
         self.target_lang = target_lang
-        self._translator = None
-
-    @property
-    def translator(self):
-        if self._translator is None:
-            self._update_translator()
-        return self._translator
-
-    def _update_translator(self):
-        src = "auto" if self.source_lang == "auto" else self.source_lang
-        self._translator = GoogleTranslator(source=src, target=self.target_lang)
 
     def set_source_lang(self, lang: str):
         """设置源语言"""
         self.source_lang = lang
-        self._translator = None
 
     def set_target_lang(self, lang: str):
         """设置目标语言"""
         self.target_lang = lang
-        self._translator = None
 
     def translate(self, text: str) -> str:
         """
@@ -63,8 +59,47 @@ class Translator:
             return ""
 
         try:
-            result = self.translator.translate(text)
-            return result if result else ""
+            source = self._LANG_MAP.get(self.source_lang, "en")
+            target = self._LANG_MAP.get(self.target_lang, "zh-CN")
+
+            # 自动检测源语言时，默认英语（最常见的 OCR 外语）
+            if source == "auto":
+                source = "en"
+
+            langpair = f"{source}|{target}"
+
+            params = urllib.parse.urlencode({
+                "q": text,
+                "langpair": langpair,
+            })
+            url = f"https://api.mymemory.translated.net/get?{params}"
+
+            req = urllib.request.Request(
+                url,
+                headers={
+                    "User-Agent": "ORC-Screenshot-Tool/1.0.4",
+                },
+            )
+
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+
+            status = result.get("responseStatus")
+            if status == 200:
+                translated = result.get("responseData", {}).get("translatedText", "")
+                # MyMemory 有时返回全大写，尝试修正
+                matches = result.get("matches", [])
+                for match in matches:
+                    if match.get("translation") and match.get("quality", "0") != "0":
+                        translated = match["translation"]
+                        break
+                return translated.strip()
+            else:
+                detail = result.get("responseDetails", "")
+                return f"[翻译出错] {status}: {detail}"
+
+        except urllib.error.URLError as e:
+            return f"[翻译出错] 网络错误: {e.reason}"
         except Exception as e:
             return f"[翻译出错] {str(e)}"
 

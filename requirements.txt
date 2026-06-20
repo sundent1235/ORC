@@ -4,9 +4,7 @@ PyQt5-sip==12.18.0
 mss==10.2.0
 Pillow==12.2.0
 rapidocr-onnxruntime>=1.4.0
-deep-translator==1.11.4
 onnxruntime==1.17.3
 numpy==1.26.4
 opencv-python==4.10.0.84
 pip-system-certs==5.3
-truststore==0.10.4

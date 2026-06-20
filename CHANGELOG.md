@@ -1,5 +1,31 @@
 # ORC 截图工具 - 版本更新日志
 
+## v1.0.5 (2026-06-20)
+
+### 🐛 Bug 修复
+
+- **修复翻译功能不可用**：Google Translate 在国内无法访问，替换为 MyMemory Translation API（免费、无需 API Key、国内直连可用）
+- **修复截图翻译时界面卡死**：翻译请求阻塞 UI 主线程导致窗口无响应，改为 QThread 异步执行，翻译过程中界面保持流畅
+
+### 📦 依赖变更
+
+| 操作 | 依赖包 |
+|------|--------|
+| 移除 | `deep-translator==1.11.4` |
+| 移除 | `truststore==0.10.4` |
+
+### 📁 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `core/translator.py` | 重写 | Google Translate → MyMemory API，使用 stdlib urllib，无第三方依赖 |
+| `ui/ocr_dialog.py` | 修改 | 新增 TranslateWorker(QThread) 异步翻译线程 |
+| `requirements.txt` | 修改 | 移除 deep-translator、truststore |
+| `ORC.spec` | 修改 | hiddenimports 移除 deep_translator/truststore，加入 excludes |
+| `ORC-dir.spec` | 修改 | 同上 |
+
+---
+
 ## v1.0.4 (2026-06-20)
 
 ### 🔄 核心引擎替换

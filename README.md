@@ -8,7 +8,7 @@
 
 - **快捷键截图** — 全局快捷键 `Ctrl+Shift+A`，支持全屏截图和区域选择，支持多显示器
 - **本地 OCR 识别** — 基于 RapidOCR（PaddleOCR v4）引擎，无需联网即可识别中英文文字
-- **自动翻译** — OCR 完成后自动调用 Google Translate 翻译，支持中/英/日/韩/法/德/西/俄等语言
+- **自动翻译** — OCR 完成后自动调用 MyMemory API 翻译，支持中/英/日/韩/法/德/西/俄等语言
 - **截图加密** — 截图以 XOR 加密格式保存，密钥绑定本机，防止他人直接查看
 - **剪贴板集成** — 截图自动复制到剪贴板，OCR 文字和翻译结果一键复制
 - **系统托盘** — 最小化到托盘运行，不占用任务栏空间
@@ -71,7 +71,7 @@ ORC/
 │   ├── hotkey.py         # Windows 原生快捷键（RegisterHotKey API）
 │   ├── ocr_engine.py     # RapidOCR (PaddleOCR v4) OCR 引擎
 │   ├── screenshot.py     # 截图管理 + XOR 加密
-│   └── translator.py     # Google Translate 翻译模块
+│   └── translator.py     # MyMemory API 翻译模块
 ├── ui/                   # 界面模块
 │   ├── main_window.py    # 截图区域选择窗口
 │   ├── ocr_dialog.py     # OCR 结果弹窗（截图预览 + 识别 + 翻译）
@@ -106,14 +106,13 @@ ORC/
 | PyQt5 | GUI 框架 |
 | mss | 屏幕截图 |
 | RapidOCR (PaddleOCR v4) | 本地 OCR 识别 |
-| deep-translator | Google Translate API |
+| MyMemory API | 多语言翻译 |
 | Pillow | 图片处理 |
-| truststore | Windows 系统 SSL 证书 |
 | PyInstaller | 打包为 EXE |
 
 ## 已知问题
 
-- 翻译功能需要联网，OCR 文字会通过 HTTP 发送到 Google 服务器，如截图含敏感信息请注意隐私
+- 翻译功能需要联网，OCR 文字会通过 HTTP 发送到 MyMemory 服务器，如截图含敏感信息请注意隐私
 - EXE 无代码签名，Windows SmartScreen 会弹出"未知发布者"警告
 - 加密截图使用机器绑定密钥，仅本机可解密，换电脑需关闭加密或手动解密
 

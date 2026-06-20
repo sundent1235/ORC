@@ -77,7 +77,7 @@ class TrayIcon(QObject):
         """显示关于信息"""
         self.tray.showMessage(
             "ORC 截图工具",
-            "版本 1.0.4\n截图 / OCR / 翻译\n快捷键: Ctrl+Shift+A",
+            "版本 1.0.5\n截图 / OCR / 翻译\n快捷键: Ctrl+Shift+A",
             QSystemTrayIcon.Information,
             3000
         )
